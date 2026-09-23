@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manager Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        Club Membership
+    </div>
+
+    <div>
+        <span>Manager &middot; {{ session["name"] }}</span>
+
+        <a href="{{ url_for('logout') }}">
+            Sign out
+        </a>
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="page-head">
+
+        <h1>Manager Dashboard</h1>
+
+        <p>Clubs, registrations and accounts at a glance.</p>
+
+    </div>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h3>Clubs</h3>
+
+            <p class="number">
+                {{ clubs|length }}
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Registrations</h3>
+
+            <p class="number">
+                {{ registrations|length }}
+            </p>
+
+        </div>
+
+        <div class="card">
+
+            <h3>Accounts</h3>
+
+            <p class="number">
+                {{ members|length }}
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ADD CLUB -->
+
+    <div class="section">
+
+        <h2>Add a club</h2>
+
+        <form method="POST">
+
+            <label for="club_name">Club name</label>
+
+            <input
+                id="club_name"
+                type="text"
+                name="club_name"
+                placeholder="Photography Club"
+                required
+            >
+
+            <label for="category">Category</label>
+
+            <input
+                id="category"
+                type="text"
+                name="category"
+                placeholder="Arts"
+                required
+            >
+
+            <label for="description">Description</label>
+
+            <textarea
+                id="description"
+                name="description"
+                placeholder="Who is this club for and what do they do?"
+                required
+            ></textarea>
+
+            <button type="submit">
+                Add club
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- CLUB LIST -->
+
+    <div class="section">
+
+        <h2>Clubs</h2>
+
+        <div class="club-grid">
+
+            {% for club in clubs %}
+
+            <div class="club-card">
+
+                <h3>{{ club.name }}</h3>
+
+                <p class="category">{{ club.category }}</p>
+
+                <p>{{ club.description }}</p>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- REGISTRATIONS -->
+
+    <div class="section">
+
+        <h2>Registrations</h2>
+
+        {% if registrations %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Student ID</th>
+                    <th>Year</th>
+                    <th>Department</th>
+                    <th>Club</th>
+                    <th>Date</th>
+                    <th>Registered by</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for registration in registrations %}
+
+            <tr>
+
+                <td>{{ registration.student_name }}</td>
+
+                <td>{{ registration.student_id }}</td>
+
+                <td>{{ registration.year_level or "—" }}</td>
+
+                <td>{{ registration.department or "—" }}</td>
+
+                <td>{{ registration.club }}</td>
+
+                <td>{{ registration.date }}</td>
+
+                <td>{{ registration.registered_by }}</td>
+
+                <td>
+                    <span class="status status-{{ registration.status }}">
+                        {{ registration.status|capitalize }}
+                    </span>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <p class="empty">No one has registered yet.</p>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- ACCOUNTS -->
+
+    <div class="section">
+
+        <h2>Accounts</h2>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Student ID</th>
+                    <th>Year</th>
+                    <th>Department</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for member in members %}
+
+            <tr>
+
+                <td>{{ member.name }}</td>
+
+                <td>{{ member.username }}</td>
+
+                <td>{{ member.role|capitalize }}</td>
+
+                <td>{{ member.student_id or "—" }}</td>
+
+                <td>{{ member.year_level or "—" }}</td>
+
+                <td>{{ member.department or "—" }}</td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+</body>
+</html>

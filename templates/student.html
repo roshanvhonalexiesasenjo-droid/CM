@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav>
+
+    <div class="logo">
+        Club Membership
+    </div>
+
+    <div>
+
+        <span>Student &middot; {{ session["name"] }}</span>
+
+        <a href="{{ url_for('logout') }}">
+            Sign out
+        </a>
+
+    </div>
+
+</nav>
+
+
+<div class="container">
+
+    <div class="page-head">
+
+        <h1>Welcome, {{ session["name"] }}</h1>
+
+        <p>
+            Browse the clubs below and join the ones you like.
+            {% if session["year_level"] or session["department"] %}
+            &mdash; {{ session["year_level"] }}{% if session["year_level"] and session["department"] %}, {% endif %}{{ session["department"] }}
+            {% endif %}
+        </p>
+
+    </div>
+
+
+    <!-- AVAILABLE CLUBS -->
+
+    <div class="section">
+
+        <h2>Clubs</h2>
+
+        <div class="club-grid">
+
+            {% for club in clubs %}
+
+            <div class="club-card">
+
+                <h3>{{ club.name }}</h3>
+
+                <p class="category">{{ club.category }}</p>
+
+                <p>{{ club.description }}</p>
+
+                {% set status = club_status.get(club.name) %}
+
+                {% if status == "pending" %}
+
+                <span class="status status-pending">Pending review</span>
+
+                {% elif status == "accepted" %}
+
+                <span class="status status-accepted">Joined</span>
+
+                {% else %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('join_club', club_id=club.id) }}"
+                >
+
+                    <button type="submit">
+                        {% if status == "rejected" %}Request again{% else %}Join club{% endif %}
+                    </button>
+
+                </form>
+
+                {% if status == "rejected" %}
+                <p class="hint">Your last request for this club was declined.</p>
+                {% endif %}
+
+                {% endif %}
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- MY CLUBS -->
+
+    <div class="section">
+
+        <h2>My memberships</h2>
+
+        {% if registrations %}
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Student</th>
+
+                    <th>Student ID</th>
+
+                    <th>Club</th>
+
+                    <th>Date</th>
+
+                    <th>Status</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for registration in registrations %}
+
+            <tr>
+
+                <td>{{ registration.student_name }}</td>
+
+                <td>{{ registration.student_id }}</td>
+
+                <td>{{ registration.club }}</td>
+
+                <td>{{ registration.date }}</td>
+
+                <td>
+                    <span class="status status-{{ registration.status }}">
+                        {{ registration.status|capitalize }}
+                    </span>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <p class="empty">You haven't joined a club yet. Pick one above to get started.</p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Club Membership</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <div class="login-box">
+
+        <svg class="sprig" viewBox="0 0 60 44" fill="none" aria-hidden="true">
+            <path d="M30 42V16" stroke="#6d7d5e" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M30 30C24 30 20 27 18 22c6-1 10 2 12 8Z" fill="#8a9a78" opacity=".55"/>
+            <path d="M30 34c6 0 10-3 12-8-6-1-10 2-12 8Z" fill="#8a9a78" opacity=".55"/>
+            <circle cx="30" cy="12" r="5" fill="#c0808a" opacity=".55"/>
+            <circle cx="21" cy="17" r="3.4" fill="#c0808a" opacity=".4"/>
+            <circle cx="39" cy="17" r="3.4" fill="#c0808a" opacity=".4"/>
+            <circle cx="30" cy="12" r="1.8" fill="#4c3a2c" opacity=".5"/>
+        </svg>
+
+        <h1>Club Membership</h1>
+
+        <p class="subtitle">
+            Sign in to manage your clubs
+        </p>
+
+        {% if notice %}
+            <div class="notice">
+                {{ notice }}
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <div class="error">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+
+            <label for="username">Username</label>
+
+            <input
+                id="username"
+                type="text"
+                name="username"
+                placeholder="Your username"
+                required
+            >
+
+            <label for="password">Password</label>
+
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Your password"
+                required
+            >
+
+            <button type="submit">
+                Sign in
+            </button>
+
+        </form>
+
+        <p class="switch">
+            New here?
+            <a href="{{ url_for('signup') }}">Create an account</a>
+        </p>
+
+        <div class="demo-accounts">
+
+            <h3>Demo accounts</h3>
+
+            <p><b>Manager:</b> manager / manager123</p>
+
+            <p><b>Staff:</b> staff / staff123</p>
+
+            <p><b>Student:</b> student / student123</p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
