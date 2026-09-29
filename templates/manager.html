@@ -1,275 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Manager Dashboard</title>
-
+    <meta name="theme-color" content="#f4f5ef">
+    <title>Manager Dashboard · Club Membership</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
-          rel="stylesheet">
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
 </head>
-
 <body>
-
-<nav>
-
-    <div class="logo">
-        Club Membership
+<nav class="topbar">
+    <a class="logo" href="{{ url_for('manager') }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Manager · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
     </div>
-
-    <div>
-        <span>Manager &middot; {{ session["name"] }}</span>
-
-        <a href="{{ url_for('logout') }}">
-            Sign out
-        </a>
-    </div>
-
 </nav>
-
-
-<div class="container">
-
-    <div class="page-head">
-
-        <h1>Manager Dashboard</h1>
-
-        <p>Clubs, registrations and accounts at a glance.</p>
-
-    </div>
-
-    <div class="cards">
-
-        <div class="card">
-
-            <h3>Clubs</h3>
-
-            <p class="number">
-                {{ clubs|length }}
-            </p>
-
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">YOUR CLUBHOUSE · MANAGEMENT</p>
+            <h1>Everything, in one place.</h1>
+            <p>Keep clubs, registrations, and member accounts moving.</p>
         </div>
+        <a class="contact-link" href="#accounts">Member directory <span aria-hidden="true">↗</span></a>
+    </header>
 
-        <div class="card">
+    <section class="cards" aria-label="Management overview">
+        <article class="card stat-card"><span class="stat-icon" aria-hidden="true">01</span><h2>Active clubs</h2><p class="number">{{ clubs|length }}</p><p class="stat-note">In your club directory</p></article>
+        <article class="card stat-card"><span class="stat-icon" aria-hidden="true">02</span><h2>Registrations</h2><p class="number">{{ registrations|length }}</p><p class="stat-note">Requests and memberships</p></article>
+        <article class="card stat-card"><span class="stat-icon" aria-hidden="true">03</span><h2>Member accounts</h2><p class="number">{{ members|length }}</p><p class="stat-note">Students and staff</p></article>
+    </section>
 
-            <h3>Registrations</h3>
-
-            <p class="number">
-                {{ registrations|length }}
-            </p>
-
-        </div>
-
-        <div class="card">
-
-            <h3>Accounts</h3>
-
-            <p class="number">
-                {{ members|length }}
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <!-- ADD CLUB -->
-
-    <div class="section">
-
-        <h2>Add a club</h2>
-
-        <form method="POST">
-
-            <label for="club_name">Club name</label>
-
-            <input
-                id="club_name"
-                type="text"
-                name="club_name"
-                placeholder="Photography Club"
-                required
-            >
-
-            <label for="category">Category</label>
-
-            <input
-                id="category"
-                type="text"
-                name="category"
-                placeholder="Arts"
-                required
-            >
-
-            <label for="description">Description</label>
-
-            <textarea
-                id="description"
-                name="description"
-                placeholder="Who is this club for and what do they do?"
-                required
-            ></textarea>
-
-            <button type="submit">
-                Add club
-            </button>
-
-        </form>
-
-    </div>
-
-
-    <!-- CLUB LIST -->
-
-    <div class="section">
-
-        <h2>Clubs</h2>
-
-        <div class="club-grid">
-
-            {% for club in clubs %}
-
-            <div class="club-card">
-
-                <h3>{{ club.name }}</h3>
-
-                <p class="category">{{ club.category }}</p>
-
-                <p>{{ club.description }}</p>
-
+    <section class="section" id="add-club">
+        <div class="section-heading"><div><p class="eyebrow">GROW THE COMMUNITY</p><h2>Add a club</h2></div><span class="section-index">01 / CLUBS</span></div>
+        <form method="POST" class="club-form">
+            <div class="field-row">
+                <div><label for="club_name">Club name</label><input id="club_name" type="text" name="club_name" placeholder="Photography Club" required></div>
+                <div><label for="category">Category</label><input id="category" type="text" name="category" placeholder="Arts & culture" required></div>
             </div>
+            <label for="description">What is this club about?</label>
+            <textarea id="description" name="description" placeholder="Share what members can expect and who should join." required></textarea>
+            <button type="submit">Create club <span aria-hidden="true">→</span></button>
+        </form>
+    </section>
 
+    <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">THE COMMUNITY</p><h2>Clubs</h2></div><span class="section-index">{{ clubs|length }} TOTAL</span></div>
+        {% if clubs %}
+        <div class="club-grid">
+            {% for club in clubs %}
+            <article class="club-card">
+                <span class="category">{{ club.category }}</span>
+                <h3>{{ club.name }}</h3>
+                <p>{{ club.description }}</p>
+            </article>
             {% endfor %}
-
         </div>
+        {% else %}<p class="empty">No clubs yet. Add the first one above.</p>{% endif %}
+    </section>
 
-    </div>
-
-
-    <!-- REGISTRATIONS -->
-
-    <div class="section">
-
-        <h2>Registrations</h2>
-
+    <section class="section">
+        <div class="section-heading"><div><p class="eyebrow">MEMBERSHIP ACTIVITY</p><h2>Registrations</h2></div><span class="section-index">{{ registrations|length }} RECORDS</span></div>
         {% if registrations %}
-
-        <table>
-
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Student ID</th>
-                    <th>Year</th>
-                    <th>Department</th>
-                    <th>Club</th>
-                    <th>Date</th>
-                    <th>Registered by</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-
+        <div class="table-wrap"><table>
+            <thead><tr><th>Student</th><th>Student ID</th><th>Contact</th><th>Year</th><th>Department</th><th>Club</th><th>Date</th><th>Via</th><th>Status</th></tr></thead>
             <tbody>
-
             {% for registration in registrations %}
-
             <tr>
-
-                <td>{{ registration.student_name }}</td>
-
+                <td class="primary-cell">{{ registration.student_name }}</td>
                 <td>{{ registration.student_id }}</td>
-
-                <td>{{ registration.year_level or "—" }}</td>
-
-                <td>{{ registration.department or "—" }}</td>
-
-                <td>{{ registration.club }}</td>
-
-                <td>{{ registration.date }}</td>
-
-                <td>{{ registration.registered_by }}</td>
-
-                <td>
-                    <span class="status status-{{ registration.status }}">
-                        {{ registration.status|capitalize }}
-                    </span>
-                </td>
-
+                <td>{% if registration.phone %}<a href="tel:{{ registration.phone }}">{{ registration.phone }}</a>{% else %}—{% endif %}</td>
+                <td>{{ registration.year_level or "—" }}</td><td>{{ registration.department or "—" }}</td><td>{{ registration.club }}</td><td>{{ registration.date }}</td><td>{{ registration.registered_by }}</td>
+                <td><span class="status status-{{ registration.status }}">{{ registration.status|capitalize }}</span></td>
             </tr>
-
             {% endfor %}
-
             </tbody>
+        </table></div>
+        {% else %}<p class="empty">No registrations yet. New requests will appear here.</p>{% endif %}
+    </section>
 
-        </table>
-
-        {% else %}
-
-        <p class="empty">No one has registered yet.</p>
-
-        {% endif %}
-
-    </div>
-
-
-    <!-- ACCOUNTS -->
-
-    <div class="section">
-
-        <h2>Accounts</h2>
-
-        <table>
-
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Username</th>
-                    <th>Role</th>
-                    <th>Student ID</th>
-                    <th>Year</th>
-                    <th>Department</th>
-                </tr>
-            </thead>
-
+    <section class="section" id="accounts">
+        <div class="section-heading"><div><p class="eyebrow">PEOPLE</p><h2>Member directory</h2></div><span class="section-index">{{ members|length }} ACCOUNTS</span></div>
+        {% if members %}
+        <div class="table-wrap"><table>
+            <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Contact number</th><th>Student ID</th><th>Year</th><th>Department</th></tr></thead>
             <tbody>
-
             {% for member in members %}
-
             <tr>
-
-                <td>{{ member.name }}</td>
-
-                <td>{{ member.username }}</td>
-
-                <td>{{ member.role|capitalize }}</td>
-
-                <td>{{ member.student_id or "—" }}</td>
-
-                <td>{{ member.year_level or "—" }}</td>
-
-                <td>{{ member.department or "—" }}</td>
-
+                <td class="primary-cell">{{ member.name }}</td><td>{{ member.username }}</td><td><span class="role-pill">{{ member.role|capitalize }}</span></td>
+                <td>{% if member.phone %}<a href="tel:{{ member.phone }}">{{ member.phone }}</a>{% else %}—{% endif %}</td>
+                <td>{{ member.student_id or "—" }}</td><td>{{ member.year_level or "—" }}</td><td>{{ member.department or "—" }}</td>
             </tr>
-
             {% endfor %}
-
             </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
+        </table></div>
+        {% else %}<p class="empty">New student and staff accounts will appear here.</p>{% endif %}
+    </section>
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
 </body>
 </html>

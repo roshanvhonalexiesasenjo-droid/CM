@@ -11,11 +11,13 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap"
           rel="stylesheet">
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+
 
 </head>
 
@@ -31,7 +33,10 @@
 
         <span>Staff &middot; {{ session["name"] }}</span>
 
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+
         <a href="{{ url_for('logout') }}">
+
             Sign out
         </a>
 
@@ -82,10 +87,22 @@
             >
 
 
+            <label for="phone">Contact number</label>
+            <input
+                id="phone"
+                type="tel"
+                name="phone"
+                placeholder="+1 555 010 1234"
+                pattern="[0-9+(). -]{7,20}"
+                autocomplete="tel"
+                required
+            >
+
             <div class="field-row">
 
                 <div>
                     <label for="year_level">Year level</label>
+
 
                     <select id="year_level" name="year_level">
 
