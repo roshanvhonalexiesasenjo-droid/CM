@@ -21,7 +21,8 @@ users = [
         "password": "manager123",
         "role": "manager",
         "name": "Club Manager",
-        "student_id": ""
+        "student_id": "",
+        "phone": ""
     },
     {
         "username": "staff",
@@ -90,6 +91,14 @@ def find_user(username):
     return None
 
 
+def valid_phone(phone):
+    allowed_characters = "+(). -"
+    digit_count = sum(character.isdigit() for character in phone)
+    return 7 <= digit_count and len(phone) <= 20 and all(
+        character.isdigit() or character in allowed_characters for character in phone
+    )
+
+
 def find_club(club_id):
     for club in clubs:
         if club["id"] == club_id:
@@ -148,6 +157,7 @@ def login():
             session["role"] = user["role"]
             session["name"] = user["name"]
             session["student_id"] = user.get("student_id", "")
+            session["phone"] = user.get("phone", "")
             session["year_level"] = user.get("year_level", "")
             session["department"] = user.get("department", "")
 
@@ -182,6 +192,7 @@ def signup():
         confirm = request.form["confirm"]
         role = request.form["role"]
         student_id = request.form.get("student_id", "").strip()
+        phone = request.form.get("phone", "").strip()
         year_level = request.form.get("year_level", "").strip()
         department = request.form.get("department", "").strip()
 
@@ -191,13 +202,16 @@ def signup():
             "username": username,
             "role": role,
             "student_id": student_id,
+            "phone": phone,
             "year_level": year_level,
             "department": department
         }
 
         error = None
 
-        if role not in ["student", "staff"]:
+        if not valid_phone(phone):
+            error = "Enter a valid contact number with at least 7 digits."
+        elif role not in ["student", "staff"]:
             error = "Choose whether you are joining as a student or as staff."
 
         elif len(username) < 4:
@@ -233,6 +247,7 @@ def signup():
             "role": role,
             "name": name,
             "student_id": student_id,
+            "phone": phone,
             "year_level": year_level if role == "student" else "",
             "department": department if role == "student" else ""
         })
@@ -311,8 +326,11 @@ def register_student():
 
     student_name = request.form["student_name"].strip()
     student_id = request.form["student_id"].strip()
+    phone = request.form.get("phone", "").strip()
     year_level = request.form.get("year_level", "").strip()
     department = request.form.get("department", "").strip()
+    if not valid_phone(phone):
+        return "Enter a valid contact number with at least 7 digits.", 400
     club_id = int(request.form["club_id"])
 
     selected_club = find_club(club_id)
@@ -324,6 +342,7 @@ def register_student():
             "username": "",
             "student_name": student_name,
             "student_id": student_id,
+            "phone": phone,
             "year_level": year_level,
             "department": department,
             "club": selected_club["name"],
@@ -438,6 +457,7 @@ def join_club(club_id):
                 "username": session["username"],
                 "student_name": session["name"],
                 "student_id": session.get("student_id") or session["username"],
+                "phone": session.get("phone", ""),
                 "year_level": session.get("year_level", ""),
                 "department": session.get("department", ""),
                 "club": selected_club["name"],
