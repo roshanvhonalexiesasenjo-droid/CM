@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>Member directory · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for('manager') }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Manager · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">YOUR CLUBHOUSE · PEOPLE</p>
+            <h1>Member directory.</h1>
+            <p>Every student and staff account in one list.</p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for('manager') }}"><span aria-hidden="true">←</span> Dashboard</a>
+            <a class="contact-link" href="{{ url_for('add_user') }}">Add user <span aria-hidden="true">+</span></a>
+        </div>
+    </header>
+
+    <section class="section" id="accounts">
+        <div class="section-heading"><div><p class="eyebrow">PEOPLE</p><h2>Member directory</h2></div><span class="section-index">{{ members|length }} ACCOUNTS</span></div>
+        {% if members %}
+        <div class="table-wrap"><table>
+            <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Contact number</th><th>Student ID</th><th>Year</th><th>Department</th><th>Action</th></tr></thead>
+            <tbody>
+            {% for member in members %}
+            <tr>
+                <td class="primary-cell">{{ member.name }}</td><td>{{ member.username }}</td><td><span class="role-pill">{{ member.role|capitalize }}</span></td>
+                <td>{% if member.phone %}<a href="tel:{{ member.phone }}">{{ member.phone }}</a>{% else %}—{% endif %}</td>
+                <td>{{ member.student_id or "—" }}</td><td>{{ member.year_level or "—" }}</td><td>{{ member.department or "—" }}</td>
+                <td><form method="POST" action="{{ url_for('delete_user', username=member.username) }}" onsubmit="return confirm('Delete the account for {{ member.name|e }}? Their own join requests will be removed too.');"><button class="danger" type="submit">Delete</button></form></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table></div>
+        {% else %}<p class="empty">New student and staff accounts will appear here.</p>{% endif %}
+    </section>
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>

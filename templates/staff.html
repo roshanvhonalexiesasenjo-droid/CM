@@ -35,6 +35,8 @@
 
         <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
 
+        {% if my_coordinated_clubs %}<a href="{{ url_for('coordinator_page') }}">Coordinator page</a>{% endif %}
+
         <a href="{{ url_for('logout') }}">
 
             Sign out
@@ -61,6 +63,12 @@
     <div class="section">
 
         <h2>Register a student</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="{{ 'error' if category == 'error' else 'notice' }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
 
         <form method="POST"
               action="{{ url_for('register_student') }}">
@@ -98,21 +106,27 @@
                 required
             >
 
+            <label for="password">Student password</label>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="6+ characters"
+                autocomplete="new-password"
+            >
+            <p class="hint">The student signs in with their student ID and this password. Leave blank if they already have an account.</p>
+
             <div class="field-row">
 
                 <div>
                     <label for="year_level">Year level</label>
 
 
-                    <select id="year_level" name="year_level">
-
-                        <option value="">Not specified</option>
-                        <option value="1st Year">1st Year</option>
-                        <option value="2nd Year">2nd Year</option>
-                        <option value="3rd Year">3rd Year</option>
-                        <option value="4th Year">4th Year</option>
-                        <option value="5th Year">5th Year</option>
-
+                    <select id="year_level" name="year_level" required>
+                        <option value="">Choose a year</option>
+                        {% for y in year_levels %}
+                        <option value="{{ y }}">{{ y }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 
@@ -124,6 +138,7 @@
                         type="text"
                         name="department"
                         placeholder="College of Engineering"
+                        required
                     >
                 </div>
 
@@ -175,6 +190,10 @@
                 <p class="category">{{ club.category }}</p>
 
                 <p>{{ club.description }}</p>
+
+                {% set coord = coordinator_of(club) %}
+                <p class="coordinator-line">Coordinator: <strong>{{ coord.name if coord else "Not assigned" }}</strong></p>
+                <a class="card-link" href="{{ url_for('club_detail', club_id=club.id) }}">Members &amp; coordinator &rarr;</a>
 
             </div>
 
@@ -249,6 +268,12 @@
                             <button class="reject" type="submit">Reject</button>
                         </form>
 
+                        <form method="POST"
+                              action="{{ url_for('delete_registration', reg_id=registration.id) }}"
+                              onsubmit="return confirm('Delete this request? This cannot be undone.');">
+                            <button class="danger" type="submit">Delete</button>
+                        </form>
+
                     </div>
 
                 </td>
@@ -300,6 +325,8 @@
 
                     <th>Status</th>
 
+                    <th>Action</th>
+
                 </tr>
 
             </thead>
@@ -328,6 +355,14 @@
                     <span class="status status-{{ registration.status }}">
                         {{ registration.status|capitalize }}
                     </span>
+                </td>
+
+                <td>
+                    <form method="POST"
+                          action="{{ url_for('delete_registration', reg_id=registration.id) }}"
+                          onsubmit="return confirm('Delete this registration? This cannot be undone.');">
+                        <button class="danger" type="submit">Delete</button>
+                    </form>
                 </td>
 
             </tr>

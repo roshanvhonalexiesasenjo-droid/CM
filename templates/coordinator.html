@@ -1,0 +1,78 @@
+{% from "_members.html" import member_tabs with context %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>Coordinator · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='tabs.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for(session['role']) }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Coordinator · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">YOUR CLUBHOUSE · COORDINATION</p>
+            <h1>Coordinator desk.</h1>
+            <p>Review join requests, give members a role, or remove them from the clubs you coordinate.</p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for(session['role']) }}"><span aria-hidden="true">←</span> Dashboard</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="{{ 'error' if category == 'error' else 'notice' }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    {% for section in sections %}
+    <section class="section" id="club-{{ section.club.id }}">
+        <div class="section-heading"><div><p class="eyebrow">{{ section.club.category|upper }}</p><h2>{{ section.club.name }}</h2></div><span class="section-index">{{ section.member_count }} MEMBER{{ "" if section.member_count == 1 else "S" }}</span></div>
+        {% if section.pending %}
+        <div class="request-block">
+            <h3>Pending requests <span class="tab-count">{{ section.pending|length }}</span></h3>
+            <div class="table-wrap"><table>
+                <thead><tr><th>Student</th><th>Student ID</th><th>Year</th><th>Department</th><th>Date</th><th>Decision</th></tr></thead>
+                <tbody>
+                {% for r in section.pending %}
+                <tr>
+                    <td class="primary-cell">{{ r.student_name }}</td><td>{{ r.student_id }}</td><td>{{ r.year_level or "—" }}</td><td>{{ r.department or "—" }}</td><td>{{ r.date }}</td>
+                    <td><div class="decision-row">
+                        <form method="POST" action="{{ url_for('coordinator_accept', reg_id=r.id) }}"><button class="accept" type="submit">Accept</button></form>
+                        <form method="POST" action="{{ url_for('coordinator_reject', reg_id=r.id) }}"><button class="reject" type="submit">Reject</button></form>
+                    </div></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table></div>
+        </div>
+        {% endif %}
+        <div class="request-block">
+            <h3>Members</h3>
+            {% if section.groups %}
+                {{ member_tabs(section.groups, 'club-' ~ section.club.id, 'coordinator') }}
+            {% else %}
+            <p class="empty">No accepted members yet. Once requests for this club are accepted, they will show up here.</p>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>

@@ -104,34 +104,10 @@
                     <label for="year_level">Year level</label>
 
                     <select id="year_level" name="year_level">
-
                         <option value="">Not applicable</option>
-
-                        <option value="1st Year"
-                            {% if form.year_level == '1st Year' %}selected{% endif %}>
-                            1st Year
-                        </option>
-
-                        <option value="2nd Year"
-                            {% if form.year_level == '2nd Year' %}selected{% endif %}>
-                            2nd Year
-                        </option>
-
-                        <option value="3rd Year"
-                            {% if form.year_level == '3rd Year' %}selected{% endif %}>
-                            3rd Year
-                        </option>
-
-                        <option value="4th Year"
-                            {% if form.year_level == '4th Year' %}selected{% endif %}>
-                            4th Year
-                        </option>
-
-                        <option value="5th Year"
-                            {% if form.year_level == '5th Year' %}selected{% endif %}>
-                            5th Year
-                        </option>
-
+                        {% for y in year_levels %}
+                        <option value="{{ y }}" {% if form.year_level == y %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
                     </select>
                 </div>
 

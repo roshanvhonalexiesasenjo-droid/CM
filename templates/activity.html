@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>Activity log · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for('manager') }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Manager · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">YOUR CLUBHOUSE · ACTIVITY</p>
+            <h1>Activity log.</h1>
+            <p>What was created, changed and deleted, newest first.</p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for('manager') }}"><span aria-hidden="true">←</span> Dashboard</a>
+            <a class="contact-link" href="{{ url_for('member_directory') }}">Member directory <span aria-hidden="true">↗</span></a>
+        </div>
+    </header>
+
+    <section class="section" id="activity">
+        <div class="section-heading"><div><p class="eyebrow">AUDIT TRAIL</p><h2>Activity</h2></div><span class="section-index">{{ total }} {{ "ENTRY" if total == 1 else "ENTRIES" }}</span></div>
+        {% for message in get_flashed_messages() %}<div class="notice">{{ message }}</div>{% endfor %}
+        <nav class="tab-list" aria-label="Filter activity">
+            {% for key, label in filters %}
+            <a class="tab {% if key == current %}active{% endif %}" href="{{ url_for('activity', filter=key) }}" {% if key == current %}aria-current="page"{% endif %}>{{ label }} <span class="tab-count">{{ counts[key] }}</span></a>
+            {% endfor %}
+        </nav>
+        {% if entries %}
+        <div class="table-wrap"><table>
+            <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Details</th></tr></thead>
+            <tbody>
+            {% for e in entries %}
+            <tr>
+                <td class="nowrap">{{ e.time }}</td>
+                <td>{{ e.actor }}{% if e.actor_role %} <span class="role-pill">{{ e.actor_role|capitalize }}</span>{% endif %}</td>
+                <td><span class="status {% if e.tone == 'danger' %}status-rejected{% elif e.tone == 'good' %}status-accepted{% endif %}">{{ e.action }}</span></td>
+                <td>{{ e.details }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table></div>
+        {% if total > entries|length %}<p class="hint">Showing the latest {{ entries|length }} of {{ total }}.</p>{% endif %}
+        {% else %}
+        <p class="empty">{% if current == "all" %}Nothing has happened yet. New activity will show up here.{% else %}No entries for this filter yet.{% endif %}</p>
+        {% endif %}
+        {% if counts["all"] %}
+        <form method="POST" action="{{ url_for('clear_activity') }}" onsubmit="return confirm('Clear the whole activity log? This cannot be undone.');">
+            <button class="danger" type="submit">Clear log</button>
+        </form>
+        <p class="hint">Only the latest {{ limit }} entries are kept, and the log resets when the app restarts.</p>
+        {% endif %}
+    </section>
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>

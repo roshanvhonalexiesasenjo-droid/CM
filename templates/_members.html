@@ -1,0 +1,71 @@
+{# Department tabs for a club's members. Used by the club page (staff/manager),
+   the coordinator page and the student roster.
+   mode: "staff" | "coordinator" | "student" #}
+
+{% macro member_table(items, mode, show_dept) %}
+<div class="table-wrap"><table>
+    <thead><tr>
+        <th>{{ "Member" if mode == "student" else "Student" }}</th>
+        {% if mode != "student" %}<th>Student ID</th>{% endif %}
+        <th>Year</th>
+        {% if show_dept %}<th>Department</th>{% endif %}
+        <th>Role</th>
+        {% if mode != "student" %}<th>Contact</th>{% endif %}
+        {% if mode == "staff" %}<th>Joined</th>{% endif %}
+        {% if mode == "coordinator" %}<th>Action</th>{% endif %}
+    </tr></thead>
+    <tbody>
+    {% for item in items %}
+    {% set m = item.m %}
+    <tr>
+        <td class="primary-cell">{{ m.student_name }}</td>
+        {% if mode != "student" %}<td>{{ m.student_id }}</td>{% endif %}
+        <td>{{ m.year_level or "—" }}</td>
+        {% if show_dept %}<td>{{ item.department }}</td>{% endif %}
+        {% if mode == "coordinator" %}
+        {% set current = m.club_role or "Member" %}
+        <td>
+            <form method="POST" action="{{ url_for('set_member_role', reg_id=m.id) }}" class="role-form">
+                <select name="club_role" aria-label="Role for {{ m.student_name }}">
+                    {% for r in club_roles %}<option value="{{ r }}" {% if r == current %}selected{% endif %}>{{ r }}</option>{% endfor %}
+                </select>
+                <button type="submit">Save</button>
+            </form>
+        </td>
+        {% else %}
+        <td><span class="role-pill">{{ m.club_role or "Member" }}</span></td>
+        {% endif %}
+        {% if mode != "student" %}<td>{% if m.phone %}<a href="tel:{{ m.phone }}">{{ m.phone }}</a>{% else %}—{% endif %}</td>{% endif %}
+        {% if mode == "staff" %}<td>{{ m.date }}</td>{% endif %}
+        {% if mode == "coordinator" %}
+        <td><form method="POST" action="{{ url_for('coordinator_remove', reg_id=m.id) }}" onsubmit="return confirm('Remove {{ m.student_name|e }} from {{ m.club|e }}?');"><button class="danger" type="submit">Remove</button></form></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+    </tbody>
+</table></div>
+{% endmacro %}
+
+
+{% macro member_tabs(groups, uid, mode) %}
+{% set everyone = [] %}
+{% for g in groups %}{% for m in g.members %}{% set _ = everyone.append({"m": m, "department": g.department}) %}{% endfor %}{% endfor %}
+<div class="dept-tabs" id="tabs-{{ uid }}" data-tabs>
+    <div class="tab-list" role="tablist" aria-label="Departments">
+        <button type="button" class="tab" role="tab" id="tab-{{ uid }}-all" data-panel="panel-{{ uid }}-all" aria-selected="true">All <span class="tab-count">{{ everyone|length }}</span></button>
+        {% for g in groups %}
+        <button type="button" class="tab" role="tab" id="tab-{{ uid }}-{{ loop.index }}" data-panel="panel-{{ uid }}-{{ loop.index }}" aria-selected="false">{{ g.department }} <span class="tab-count">{{ g.members|length }}</span></button>
+        {% endfor %}
+    </div>
+    <div class="tab-panel" role="tabpanel" id="panel-{{ uid }}-all" aria-labelledby="tab-{{ uid }}-all">
+        {{ member_table(everyone, mode, true) }}
+    </div>
+    {% for g in groups %}
+    <div class="tab-panel" role="tabpanel" id="panel-{{ uid }}-{{ loop.index }}" aria-labelledby="tab-{{ uid }}-{{ loop.index }}">
+        {% set rows = [] %}
+        {% for m in g.members %}{% set _ = rows.append({"m": m, "department": g.department}) %}{% endfor %}
+        {{ member_table(rows, mode, false) }}
+    </div>
+    {% endfor %}
+</div>
+{% endmacro %}

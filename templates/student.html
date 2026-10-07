@@ -36,6 +36,8 @@
 
         <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
 
+        {% if my_coordinated_clubs %}<a href="{{ url_for('coordinator_page') }}">Coordinator page</a>{% endif %}
+
         <a href="{{ url_for('logout') }}">
 
             Sign out
@@ -90,6 +92,8 @@
 
                 <span class="status status-accepted">Joined</span>
 
+                <a class="card-link" href="{{ url_for('club_roster', club_id=club.id) }}">View members &rarr;</a>
+
                 {% else %}
 
                 <form
@@ -138,6 +142,8 @@
 
                     <th>Club</th>
 
+                    <th>Role</th>
+
                     <th>Date</th>
 
                     <th>Status</th>
@@ -157,6 +163,8 @@
                 <td>{{ registration.student_id }}</td>
 
                 <td>{{ registration.club }}</td>
+
+                <td>{% if registration.status == "accepted" %}{{ registration.club_role or "Member" }}{% else %}&mdash;{% endif %}</td>
 
                 <td>{{ registration.date }}</td>
 

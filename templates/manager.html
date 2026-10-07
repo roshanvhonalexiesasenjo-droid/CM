@@ -27,13 +27,17 @@
             <h1>Everything, in one place.</h1>
             <p>Keep clubs, registrations, and member accounts moving.</p>
         </div>
-        <a class="contact-link" href="#accounts">Member directory <span aria-hidden="true">↗</span></a>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for('add_user') }}">Add user <span aria-hidden="true">+</span></a>
+            <a class="contact-link" href="{{ url_for('member_directory') }}">Member directory <span aria-hidden="true">↗</span></a>
+            <a class="contact-link" href="{{ url_for('activity') }}">Activity log <span aria-hidden="true">↗</span></a>
+        </div>
     </header>
 
     <section class="cards" aria-label="Management overview">
         <article class="card stat-card"><span class="stat-icon" aria-hidden="true">01</span><h2>Active clubs</h2><p class="number">{{ clubs|length }}</p><p class="stat-note">In your club directory</p></article>
         <article class="card stat-card"><span class="stat-icon" aria-hidden="true">02</span><h2>Registrations</h2><p class="number">{{ registrations|length }}</p><p class="stat-note">Requests and memberships</p></article>
-        <article class="card stat-card"><span class="stat-icon" aria-hidden="true">03</span><h2>Member accounts</h2><p class="number">{{ members|length }}</p><p class="stat-note">Students and staff</p></article>
+        <article class="card stat-card"><span class="stat-icon" aria-hidden="true">03</span><h2>Member accounts</h2><p class="number">{{ members|length }}</p><p class="stat-note"><a href="{{ url_for('member_directory') }}">Students and staff →</a></p></article>
     </section>
 
     <section class="section" id="add-club">
@@ -58,6 +62,12 @@
                 <span class="category">{{ club.category }}</span>
                 <h3>{{ club.name }}</h3>
                 <p>{{ club.description }}</p>
+                {% set coord = coordinator_of(club) %}
+                <p class="coordinator-line">Coordinator: <strong>{{ coord.name if coord else "Not assigned" }}</strong></p>
+                <a class="card-link" href="{{ url_for('club_detail', club_id=club.id) }}">Members &amp; coordinator &rarr;</a>
+                <form method="POST" action="{{ url_for('delete_club', club_id=club.id) }}" onsubmit="return confirm('Delete {{ club.name|e }}? Its registrations will be removed too.');">
+                    <button class="danger" type="submit">Delete club</button>
+                </form>
             </article>
             {% endfor %}
         </div>
@@ -68,7 +78,7 @@
         <div class="section-heading"><div><p class="eyebrow">MEMBERSHIP ACTIVITY</p><h2>Registrations</h2></div><span class="section-index">{{ registrations|length }} RECORDS</span></div>
         {% if registrations %}
         <div class="table-wrap"><table>
-            <thead><tr><th>Student</th><th>Student ID</th><th>Contact</th><th>Year</th><th>Department</th><th>Club</th><th>Date</th><th>Via</th><th>Status</th></tr></thead>
+            <thead><tr><th>Student</th><th>Student ID</th><th>Contact</th><th>Year</th><th>Department</th><th>Club</th><th>Date</th><th>Via</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
             {% for registration in registrations %}
             <tr>
@@ -77,6 +87,7 @@
                 <td>{% if registration.phone %}<a href="tel:{{ registration.phone }}">{{ registration.phone }}</a>{% else %}—{% endif %}</td>
                 <td>{{ registration.year_level or "—" }}</td><td>{{ registration.department or "—" }}</td><td>{{ registration.club }}</td><td>{{ registration.date }}</td><td>{{ registration.registered_by }}</td>
                 <td><span class="status status-{{ registration.status }}">{{ registration.status|capitalize }}</span></td>
+                <td><form method="POST" action="{{ url_for('delete_registration', reg_id=registration.id) }}" onsubmit="return confirm('Delete this registration? This cannot be undone.');"><button class="danger" type="submit">Delete</button></form></td>
             </tr>
             {% endfor %}
             </tbody>
@@ -84,23 +95,6 @@
         {% else %}<p class="empty">No registrations yet. New requests will appear here.</p>{% endif %}
     </section>
 
-    <section class="section" id="accounts">
-        <div class="section-heading"><div><p class="eyebrow">PEOPLE</p><h2>Member directory</h2></div><span class="section-index">{{ members|length }} ACCOUNTS</span></div>
-        {% if members %}
-        <div class="table-wrap"><table>
-            <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Contact number</th><th>Student ID</th><th>Year</th><th>Department</th></tr></thead>
-            <tbody>
-            {% for member in members %}
-            <tr>
-                <td class="primary-cell">{{ member.name }}</td><td>{{ member.username }}</td><td><span class="role-pill">{{ member.role|capitalize }}</span></td>
-                <td>{% if member.phone %}<a href="tel:{{ member.phone }}">{{ member.phone }}</a>{% else %}—{% endif %}</td>
-                <td>{{ member.student_id or "—" }}</td><td>{{ member.year_level or "—" }}</td><td>{{ member.department or "—" }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table></div>
-        {% else %}<p class="empty">New student and staff accounts will appear here.</p>{% endif %}
-    </section>
     <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
 </main>
 </body>

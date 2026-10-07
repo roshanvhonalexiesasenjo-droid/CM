@@ -1,0 +1,88 @@
+{% from "_members.html" import member_tabs with context %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>{{ club.name }} · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='tabs.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for(session['role']) }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> {{ session["role"]|capitalize }} · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">{{ club.category|upper }}</p>
+            <h1>{{ club.name }}</h1>
+            <p>{{ club.description }}</p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for(session['role']) }}"><span aria-hidden="true">←</span> Dashboard</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="{{ 'error' if category == 'error' else 'notice' }}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <section class="section" id="coordinator">
+        <div class="section-heading"><div><p class="eyebrow">LEADERSHIP</p><h2>Coordinator</h2></div><span class="section-index">01 / CLUB</span></div>
+        {% set coord = coordinator_of(club) %}
+        <p class="coordinator-line">Current coordinator: <strong>{{ coord.name if coord else "Not assigned" }}</strong>{% if coord %} <span class="role-pill">{{ coord.role|capitalize }} · @{{ coord.username }}</span>{% endif %}</p>
+        {% if staff_list or student_list %}
+        <form method="POST" action="{{ url_for('set_coordinator', club_id=club.id) }}" class="coordinator-form">
+            <div>
+                <label for="coordinator_select">Pick a coordinator</label>
+                <select id="coordinator_select" name="coordinator">
+                    <option value="">No coordinator</option>
+                    {% if staff_list %}
+                    <optgroup label="Staff">
+                        {% for person in staff_list %}
+                        <option value="{{ person.username }}" {% if club.coordinator == person.username %}selected{% endif %}>{{ person.name }} (@{{ person.username }})</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                    {% if student_list %}
+                    <optgroup label="Students">
+                        {% for person in student_list %}
+                        <option value="{{ person.username }}" {% if club.coordinator == person.username %}selected{% endif %}>{{ person.name }} (@{{ person.username }}){% if person.department %} · {{ person.department }}{% endif %}</option>
+                        {% endfor %}
+                    </optgroup>
+                    {% endif %}
+                </select>
+            </div>
+            <button type="submit">Save coordinator</button>
+        </form>
+        {% else %}
+        <p class="empty">There are no staff or student accounts to choose from yet. Ask a manager to add one.</p>
+        {% endif %}
+    </section>
+
+    <section class="section" id="members">
+        <div class="section-heading"><div><p class="eyebrow">MEMBERSHIP</p><h2>Members</h2></div><span class="section-index">{{ member_count }} MEMBER{{ "" if member_count == 1 else "S" }}</span></div>
+        {% if pending_count %}<p class="hint">{{ pending_count }} request{{ "" if pending_count == 1 else "s" }} still waiting for a decision. Only accepted members are listed here.</p>{% endif %}
+        {% if groups %}
+            {{ member_tabs(groups, 'club-' ~ club.id, 'staff') }}
+        {% else %}
+        <p class="empty">No accepted members yet. They will appear here, grouped by department, once requests are accepted.</p>
+        {% endif %}
+    </section>
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>

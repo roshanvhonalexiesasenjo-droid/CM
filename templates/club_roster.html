@@ -1,0 +1,50 @@
+{% from "_members.html" import member_tabs with context %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>{{ club.name }} · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='tabs.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for('student') }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Student · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">{{ club.category|upper }}</p>
+            <h1>{{ club.name }}</h1>
+            <p>{{ club.description }}</p>
+            {% set coord = coordinator_of(club) %}
+            <p class="coordinator-line">Coordinator: <strong>{{ coord.name if coord else "Not assigned" }}</strong></p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for('student') }}"><span aria-hidden="true">←</span> Dashboard</a>
+        </div>
+    </header>
+
+    <section class="section" id="members">
+        <div class="section-heading"><div><p class="eyebrow">MEMBERSHIP</p><h2>Everyone in the club</h2></div><span class="section-index">{{ member_count }} MEMBER{{ "" if member_count == 1 else "S" }}</span></div>
+        {% if groups %}
+            {{ member_tabs(groups, 'club-' ~ club.id, 'student') }}
+        {% else %}
+        <p class="empty">No accepted members yet.</p>
+        {% endif %}
+    </section>
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>

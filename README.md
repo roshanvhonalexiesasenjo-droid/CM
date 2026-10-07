@@ -40,3 +40,15 @@ resets back to the three demo accounts and three demo clubs.
 - Staff (and managers) can **accept** or **reject** pending requests from
   their dashboard. A rejected student can request again.
 - Registration tables now show the request date and status everywhere.
+
+## Activity log
+
+Managers get an **Activity log** page (link in the dashboard header). It records
+sign-ins, accounts, clubs, join requests, roles and coordinator changes, and keeps
+a short snapshot of anything that was deleted. Filter it by Deleted, Accounts,
+Clubs, Requests, Roles or Sign-ins. Activity by or about the demo staff and demo
+student accounts is not logged (set `LOG_DEMO_ACTIVITY=1` to include it).
+
+Timestamps use UTC by default. Set an `APP_TIMEZONE` variable (a name such as
+`America/New_York`) to change that. Like everything else, the log lives in
+memory and resets when the app restarts.

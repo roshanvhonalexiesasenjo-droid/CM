@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f4f5ef">
+    <title>Add user · Club Membership</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='theme.js') }}" defer></script>
+</head>
+<body>
+<nav class="topbar">
+    <a class="logo" href="{{ url_for('manager') }}">Club<span>house</span></a>
+    <div class="nav-actions">
+        <span class="user-chip"><span class="online-dot"></span> Manager · {{ session["name"] }}</span>
+        <button class="theme-toggle" type="button" aria-label="Switch to dark mode">Dark mode</button>
+        <a class="sign-out" href="{{ url_for('logout') }}">Sign out</a>
+    </div>
+</nav>
+<main class="container manager-dashboard">
+    <header class="page-head">
+        <div>
+            <p class="eyebrow">YOUR CLUBHOUSE · PEOPLE</p>
+            <h1>Add a user.</h1>
+            <p>Create a student or staff account.</p>
+        </div>
+        <div class="head-links">
+            <a class="contact-link" href="{{ url_for('manager') }}"><span aria-hidden="true">←</span> Dashboard</a>
+            <a class="contact-link" href="{{ url_for('member_directory') }}">Member directory <span aria-hidden="true">↗</span></a>
+        </div>
+    </header>
+
+    <section class="section" id="add-user">
+        <div class="section-heading"><div><p class="eyebrow">PEOPLE</p><h2>Add a user</h2></div><span class="section-index">NEW ACCOUNT</span></div>
+        {% for message in get_flashed_messages() %}<div class="notice">{{ message }}</div>{% endfor %}
+        {% if user_error %}<div class="error">{{ user_error }}</div>{% endif %}
+        {% set f = user_form or {} %}
+        <form method="POST" action="{{ url_for('add_user') }}" class="club-form" id="user-form">
+            <div class="field-row">
+                <div><label for="u_name">Full name</label><input id="u_name" type="text" name="name" value="{{ f.name or '' }}" placeholder="Juan Dela Cruz" required></div>
+                <div><label for="u_role">Account type</label>
+                    <select id="u_role" name="role" required>
+                        <option value="student" {% if f.role != 'staff' %}selected{% endif %}>Student</option>
+                        <option value="staff" {% if f.role == 'staff' %}selected{% endif %}>Staff</option>
+                    </select></div>
+            </div>
+            <div class="field-row">
+                <div><label for="u_username">Username</label><input id="u_username" type="text" name="username" value="{{ f.username or '' }}" placeholder="At least 4 characters, no spaces" required></div>
+                <div><label for="u_phone">Contact number</label><input id="u_phone" type="tel" name="phone" value="{{ f.phone or '' }}" placeholder="+1 555 010 1234" pattern="[0-9+(). -]{7,20}" required></div>
+            </div>
+            <div class="field-row">
+                <div><label for="u_password">Password</label><input id="u_password" type="password" name="password" placeholder="6+ characters" required></div>
+                <div><label for="u_confirm">Repeat password</label><input id="u_confirm" type="password" name="confirm" placeholder="Type it again" required></div>
+            </div>
+            <div id="student-fields">
+                <div class="field-row">
+                    <div><label for="u_student_id">Student ID</label><input id="u_student_id" type="text" name="student_id" value="{{ f.student_id or '' }}" placeholder="2024-0001"></div>
+                    <div><label for="u_year">Year level</label>
+                        <select id="u_year" name="year_level">
+                            <option value="">Choose a year</option>
+                            {% for y in year_levels %}<option value="{{ y }}" {% if f.year_level == y %}selected{% endif %}>{{ y }}</option>{% endfor %}
+                        </select></div>
+                </div>
+                <label for="u_department">Department</label><input id="u_department" type="text" name="department" value="{{ f.department or '' }}" placeholder="College of Engineering">
+            </div>
+            <button type="submit">Create account <span aria-hidden="true">→</span></button>
+        </form>
+        <script>
+            (function () {
+                var role = document.getElementById("u_role"), box = document.getElementById("student-fields");
+                function sync() { box.hidden = role.value !== "student"; }
+                role.addEventListener("change", sync); sync();
+            })();
+        </script>
+    </section>
+
+    <footer class="page-footer">Clubhouse · A little more organized, together.</footer>
+</main>
+</body>
+</html>
