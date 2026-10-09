@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, make_response
 
 app = Flask(__name__)
 
@@ -1260,6 +1260,32 @@ def join_club(club_id):
                          subjects=[session["username"]])
 
     return redirect(url_for("student"))
+
+
+# ==========================================
+# PWA (installable app on phones and PC)
+# The service worker must be served from "/" so it can control the whole site.
+# ==========================================
+
+@app.route("/sw.js")
+def service_worker():
+    resp = make_response(send_from_directory(app.static_folder, "sw.js", mimetype="application/javascript"))
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
+
+
+@app.route("/manifest.webmanifest")
+def manifest():
+    resp = make_response(send_from_directory(app.static_folder, "manifest.webmanifest",
+                                             mimetype="application/manifest+json"))
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+@app.route("/offline")
+def offline():
+    return render_template("offline.html")
 
 
 # ==========================================

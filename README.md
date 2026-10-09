@@ -52,3 +52,21 @@ student accounts is not logged (set `LOG_DEMO_ACTIVITY=1` to include it).
 Timestamps use UTC by default. Set an `APP_TIMEZONE` variable (a name such as
 `America/New_York`) to change that. Like everything else, the log lives in
 memory and resets when the app restarts.
+
+## Install as an app (phone and PC)
+
+The site is a PWA, so it can be installed from the browser once it is served
+over HTTPS (the Railway URL is) or from `localhost`:
+
+- **Android (Chrome):** open the site, tap **Install** on the banner, or
+  menu > *Install app* / *Add to Home screen*.
+- **iPhone / iPad (Safari):** tap Share > **Add to Home Screen**.
+- **Windows / Mac / Linux (Chrome or Edge):** click the install icon in the
+  address bar, or menu > *Install Club Membership*.
+
+Files: `static/manifest.webmanifest`, `static/sw.js` (served at `/sw.js`),
+`static/pwa.js` (install banner), `static/icons/`, `templates/_pwa.html`
+(included in every page head) and `templates/offline.html`.
+Pages are never cached (they are login-protected and change often); only
+static assets are, so the app still needs a connection to show data.
+If you change static files, bump `VERSION` in `static/sw.js`.
